@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
 #
-# input parsing
-ITEM_FORMAT = /\A(?<quantity>\d+) (?<item>.+) at (?<price>\d+.\d{2})\z/
+$:.unshift("#{Dir.pwd}/lib")
+
+require 'item_parser'
 
 # tax and duty rules
 SALEX_TX = 0.1
@@ -19,17 +20,7 @@ end
 # puts ARGV.inspect
 ARGV.each do |file_name|
   file = File.open(file_name)
-
-  items = file.readlines.map do |line|
-    line.chomp!
-    match = line.match(ITEM_FORMAT)
-
-    {
-      item: match[:item],
-      quantity: match[:quantity].to_i,
-      price: match[:price].to_f
-    }
-  end
+  items = ItemParser.parse(file.read)
 
   # puts items.inspect
 
@@ -46,8 +37,6 @@ ARGV.each do |file_name|
     item.merge(subtotal:, tax:, total_price:)
   end
 
-  # puts(items.inspect)
-  
   puts("-"*80)
   items.each do |item|
     puts "%<quantity>d %<item>s: %<total_price>.2f" % item
