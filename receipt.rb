@@ -25,14 +25,13 @@ ARGV.each do |file_name|
   # puts items.inspect
 
   items.map! do |item|
-    subtotal = item[:price] * item[:quantity]
     tax = 0.0
 
-    tax += (subtotal * SALEX_TX) unless SALES_TX_EXEMPTIONS.any? { |exp| item[:item].match?(exp) }
-    tax += (subtotal * IMPORT_DUTY) if item[:item].match?(/imported/)
+    tax += (item.subtotal * SALEX_TX) unless SALES_TX_EXEMPTIONS.any? { |exp| item.item.match?(exp) }
+    tax += (item.subtotal * IMPORT_DUTY) if item.imported?
 
     tax = tax.round(2)
-    total_price = (tax + subtotal).round(2)
+    total_price = (tax + item.subtotal).round(2)
 
     item.merge(subtotal:, tax:, total_price:)
   end
